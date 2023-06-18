@@ -1,16 +1,19 @@
-import request from 'supertest';
+import supertest from 'supertest';
 
-const requestHelper = (app: any) => {
-  const server = app.listen();
+const requestHelper = async (app: any) => {
+  await app.listen({
+    port: parseInt(process.env.PORT || '3000', 10),
+    host: '0.0.0.0',
+  });
+  await app.ready();
 
   return {
-    server,
     post: ({
       path = '/',
       params = {},
       headers = {},
       auth = '',
-    }) => request(app)
+    }) => supertest(app.server)
       .post(path)
       .set(headers || {})
       .set('Authorization', auth || '')
@@ -21,7 +24,7 @@ const requestHelper = (app: any) => {
       params = {},
       auth = '',
       headers = {},
-    }) => request(app)
+    }) => supertest(app.server)
       .put(path)
       .set(headers || {})
       .set('Authorization', auth || '')
@@ -32,7 +35,7 @@ const requestHelper = (app: any) => {
       params = {},
       auth = '',
       headers = {},
-    }) => request(app)
+    }) => supertest(app.server)
       .patch(path)
       .set(headers || {})
       .set('Authorization', auth || '')
@@ -43,7 +46,7 @@ const requestHelper = (app: any) => {
       auth = '',
       headers = {},
       query = {},
-    }) => request(app)
+    }) => supertest(app.server)
       .get(path)
       .set(headers || {})
       .set('Authorization', auth || '')
@@ -53,7 +56,7 @@ const requestHelper = (app: any) => {
       path = '/',
       auth = '',
       headers = {},
-    }) => request(app)
+    }) => supertest(app.server)
       .delete(path)
       .set(headers || {})
       .set('Authorization', auth || ''),

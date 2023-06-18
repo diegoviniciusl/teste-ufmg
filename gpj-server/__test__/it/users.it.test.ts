@@ -1,27 +1,23 @@
-import requestHelper from '../helpers/requestHelper';
 import createApp from '../../src/create-app';
-
-const getPath = () => '/api/user';
+import requestHelper from '../helpers/requestHelper';
 
 let get: any;
-let server: any;
+let app: any;
 
-(async () => {
-  const helper = requestHelper(await createApp());
+beforeAll(async () => {
+  app = await createApp();
+  const helper = await requestHelper(app);
   get = helper.get;
-  server = helper.server;
-})();
+});
 
 afterAll(async () => {
-  await server.close();
+  await app.close();
 });
 
 describe('[IT][GET] users', () => {
   it('GET', async () => {
-    await get({
-      path: getPath(),
-    });
-
-    expect(true).toBeTruthy();
+    await get({ path: '/v1/user' })
+      .expect(200)
+      .expect('Content-Type', 'application/json; charset=utf-8');
   });
 });
