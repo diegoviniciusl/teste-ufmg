@@ -5,7 +5,7 @@ const generateTestAuth = async (prisma: PrismaClient) => {
   const user = {
     userId: 1,
     name: 'Teste da Silva',
-    email: 'email@teste.com',
+    email: 'auth@teste.com',
     role: Role.ADMIN,
     active: true,
     phone: '123456789',
