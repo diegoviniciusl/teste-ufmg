@@ -1,7 +1,7 @@
-import { Role, PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 import createApp from '../../src/create-app';
-import { generateAccessToken } from '../../src/utils/jwt-token-helper';
 import requestHelper from '../helpers/requestHelper';
+import generateTestAuth from '../helpers/generateTestAuth';
 
 let get: any;
 let post: any;
@@ -17,29 +17,13 @@ describe('[IT] user', () => {
     post = helper.post;
     process.env.JWT_SECRET = '12345678';
     prisma = new PrismaClient();
-
-    const user = {
-      userId: 1,
-      name: 'Teste da Silva',
-      email: 'email@teste.com',
-      role: Role.ADMIN,
-      active: true,
-      phone: '123456789',
-      password: '12345678',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-
-    await prisma.user.create({
-      data: user,
-    });
-
-    token = `Bearer ${generateAccessToken(user)}`;
+    token = await generateTestAuth(prisma);
   });
 
   afterAll(async () => {
     await app.close();
     await prisma.user.deleteMany({});
+    await prisma.$disconnect();
   });
 
   describe('GET /v1/user', () => {
