@@ -1,5 +1,8 @@
-/** @type {import('ts-jest').JestConfigWithTsJest} */
 module.exports = {
-  preset: 'ts-jest',
+  coverageDirectory: 'coverage',
+  moduleFileExtensions: ['ts', 'js'],
   testEnvironment: 'node',
+  testMatch: ['**/?(*.)(spec|test).ts?(x)'],
+  testPathIgnorePatterns: ['/node_modules/', '/coverage/', '/dist/'],
+  preset: 'ts-jest',
 };

@@ -22,7 +22,7 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 dayjs.tz.setDefault('America/Sao_Paulo');
 
-export default function createApp() {
+export default async function createApp() {
   const opts: Options = {
     prisma: new PrismaClient(),
   };

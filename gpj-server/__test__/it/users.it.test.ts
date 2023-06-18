@@ -1,12 +1,16 @@
 import requestHelper from '../helpers/requestHelper';
 import createApp from '../../src/create-app';
 
-const {
-  get,
-  server,
-} = requestHelper(createApp());
-
 const getPath = () => '/api/user';
+
+let get: any;
+let server: any;
+
+(async () => {
+  const helper = requestHelper(await createApp());
+  get = helper.get;
+  server = helper.server;
+})();
 
 afterAll(async () => {
   await server.close();

@@ -1,7 +1,7 @@
 import createApp from './create-app';
 
 async function main() {
-  const app = createApp();
+  const app = await createApp();
 
   const address = await app.listen({
     port: parseInt(process.env.PORT || '3000', 10),
