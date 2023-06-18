@@ -11,7 +11,7 @@
     "migrate": "npx prisma migrate dev",
     "migrate:test": "DATABASE_URL=\"postgresql://user:password@localhost:5432/gr-pericias?schema=public\" npx prisma migrate dev",
     "test": "DATABASE_URL=\"postgresql://user:password@localhost:5432/gr-pericias?schema=public\" jest --runInBand",
-    "test:coverage": "DATABASE_URL=\"postgresql://user:password@localhost:5432/gr-pericias?schema=public\" jest --coverage"
+    "test:coverage": "DATABASE_URL=\"postgresql://user:password@localhost:5432/gr-pericias?schema=public\" jest --coverage --runInBand"
   },
   "devDependencies": {
     "@jest/globals": "^29.5.0",
