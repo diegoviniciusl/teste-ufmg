@@ -7,6 +7,7 @@ let get: any;
 let post: any;
 let app: any;
 let token: any;
+let prisma: any;
 
 describe('[IT] user', () => {
   beforeAll(async () => {
@@ -15,7 +16,8 @@ describe('[IT] user', () => {
     get = helper.get;
     post = helper.post;
     process.env.JWT_SECRET = '12345678';
-    const prismaClient = new PrismaClient();
+    prisma = new PrismaClient();
+
     const user = {
       userId: 1,
       name: 'Teste da Silva',
@@ -27,28 +29,29 @@ describe('[IT] user', () => {
       createdAt: new Date(),
       updatedAt: new Date(),
     };
-    await prismaClient.user.deleteMany({});
-    await prismaClient.user.create({
+
+    await prisma.user.create({
       data: user,
     });
+
     token = `Bearer ${generateAccessToken(user)}`;
-    console.log('token', token);
   });
 
   afterAll(async () => {
     await app.close();
+    await prisma.user.deleteMany({});
   });
 
   describe('GET /v1/user', () => {
-    it('should return an empty list', async () => {
+    it('should return single user', async () => {
       const res = await get({ path: '/v1/user', auth: token });
       expect(res.status).toBe(200);
-      expect(res.body).toBe([]);
+      expect(res.body.length).toBe(1);
     });
   });
 
-  describe.only('POST /v1/user', () => {
-    it.only('should create a new user', async () => {
+  describe('POST /v1/user', () => {
+    it('should create a new user', async () => {
       const user = {
         name: 'Teste da Silva',
         email: 'email@test.com',
