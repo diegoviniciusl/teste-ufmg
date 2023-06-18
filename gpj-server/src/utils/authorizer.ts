@@ -29,6 +29,7 @@ const verifyAuthHeader = async (authHeader: string, roles: Role[], options: Opti
 
   try {
     const payload = jwt.verify(accessToken, process.env.JWT_SECRET as string) as AuthPayload;
+    console.log('payload', payload);
     if (
       !isValidPayload(payload)
       || !roles.includes(payload.user.role)
@@ -54,6 +55,7 @@ const authorizer = (
   req: FastifyRequest,
   rep: FastifyReply,
 ) => {
+  console.log('req.headers', req.headers);
   const authHeader = req.headers.authorization;
 
   if (!authHeader) {
