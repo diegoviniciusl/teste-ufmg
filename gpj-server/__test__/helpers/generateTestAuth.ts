@@ -14,8 +14,6 @@ const generateTestAuth = async (prisma: PrismaClient) => {
     updatedAt: new Date(),
   };
 
-  await prisma.user.deleteMany({});
-
   await prisma.user.create({
     data: user,
   });

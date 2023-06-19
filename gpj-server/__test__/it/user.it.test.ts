@@ -17,12 +17,18 @@ describe('[IT] user', () => {
     post = helper.post;
     process.env.JWT_SECRET = '12345678';
     prisma = new PrismaClient();
-    token = await generateTestAuth(prisma);
   });
+
+  beforeEach(async () => {
+    token = await generateTestAuth(prisma);
+  })
+
+  afterEach(async () => {
+    await prisma.user.deleteMany({});
+  })
 
   afterAll(async () => {
     await app.close();
-    await prisma.user.deleteMany({});
     await prisma.$disconnect();
   });
 
@@ -31,6 +37,7 @@ describe('[IT] user', () => {
       const res = await get({ path: '/v1/user', auth: token });
       expect(res.status).toBe(200);
       expect(res.body.length).toBe(1);
+      expect(res.body[0].userId).toBeDefined();
     });
   });
 
@@ -43,7 +50,21 @@ describe('[IT] user', () => {
         role: 'USER',
       };
       const res = await post({ path: '/v1/user', params: user, auth: token });
+
+      const createdUser = await prisma.user.findUnique({
+        where: { email: user.email },
+      });
+
       expect(res.status).toBe(201);
+      expect(res.body).toMatchObject({
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      });
+      expect(createdUser.name).toBe(user.name);
+      expect(createdUser.email).toBe(user.email);
+      expect(createdUser.role).toBe(user.role);
+      expect(createdUser.password).not.toBe(user.password);
     });
   });
 });

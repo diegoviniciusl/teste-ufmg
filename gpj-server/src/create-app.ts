@@ -34,7 +34,7 @@ export default async function createApp() {
         coerceTypes: 'array',
       },
     },
-    logger: true,
+    logger: false,
     ...opts,
   });
 

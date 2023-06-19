@@ -17,13 +17,19 @@ describe('[IT] company', () => {
     post = helper.post;
     process.env.JWT_SECRET = '12345678';
     prisma = new PrismaClient();
-    token = await generateTestAuth(prisma);
   });
+
+  beforeEach(async () => {
+    token = await generateTestAuth(prisma);
+  })
+
+  afterEach(async () => {
+    await prisma.user.deleteMany({});
+    await prisma.company.deleteMany({});
+  })
 
   afterAll(async () => {
     await app.close();
-    await prisma.user.deleteMany({});
-    await prisma.company.deleteMany({});
     await prisma.$disconnect();
   });
 
@@ -33,20 +39,79 @@ describe('[IT] company', () => {
       expect(res.status).toBe(200);
       expect(res.body).toStrictEqual([]);
     });
+
+    it('should return a created company', async () => {
+      const company = {
+        name: 'Teste LTDA',
+        taxNumber: '11111111111',
+        phone: '1234567890',
+      };
+      await prisma.company.create({ data: company });
+
+      const res = await get({ path: '/v1/company', auth: token });
+      expect(res.status).toBe(200);
+      expect(res.body[0].name).toBe(company.name);
+      expect(res.body[0].phone).toBe(company.phone);
+      expect(res.body[0].taxNumber).toBe(company.taxNumber);
+    });
   });
 
   describe('POST /v1/company', () => {
     it('should create a new company', async () => {
       const company = {
         name: 'Teste LTDA',
-        companyId: '123456789',
+        companyId: '22222222222',
         phone: '1234567890',
         taxNumber: '12345678900',
         email: 'email@testeltda.com',
         password: '12345678',
       };
       const res = await post({ path: '/v1/company', params: company, auth: token });
+
+      const companyCreated = await prisma.company.findUnique({
+        where: {
+          taxNumber: company.taxNumber,
+        },
+      });
+
       expect(res.status).toBe(201);
+      expect(res.body).toMatchObject({
+        companyId: companyCreated.companyId,
+        name: companyCreated.name,
+        phone: companyCreated.phone,
+        email: companyCreated.email,
+      })
+      expect(companyCreated.name).toBe(company.name);
+      expect(companyCreated.phone).toBe(company.phone);
+      expect(companyCreated.email).toBe(company.email);
+    });
+
+    it('should fail with bad request if tax number is not at least 11 characters', async () => {
+      const company = {
+        name: 'Teste LTDA',
+        phone: '1234567890',
+        taxNumber: '11',
+        email: 'email@testeltda.com',
+      };
+      const res = await post({ path: '/v1/company', params: company, auth: token });
+
+      expect(res.status).toBe(400);
+      expect(res.body.message).toBeDefined();
+    });
+
+    it('should fail if tax number already exists', async () => {
+      const company = {
+        name: 'Teste LTDA',
+        phone: '1234567890',
+        taxNumber: '11111111111',
+        email: 'email@testeltda.com',
+      };
+      await prisma.company.create({ data: company })
+
+      const res = await post({ path: '/v1/company', params: company, auth: token });
+
+      expect(res.status).toBe(400);
+      expect(res.body.message).toEqual('tax number already belongs to a company');
     });
   });
 });
